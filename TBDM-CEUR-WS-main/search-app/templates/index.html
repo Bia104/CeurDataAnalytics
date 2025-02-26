@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Search Page</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 50px;
+        }
+
+        .result {
+            margin-top: 20px;
+        }
+
+        .search-container {
+            display: flex;
+        }
+
+        .search-container button {
+            margin-left: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="text-center">Search CEUR WS PDF Content</h1>
+        <form id="searchForm">
+            <div class="form-group search-container">
+                <input type="text" class="form-control" id="query" placeholder="Enter search term">
+                <button type="submit" class="btn btn-primary">
+                    Search
+                </button>
+            </div>
+        </form>
+        <div class="result">
+            <p id="resultText" class="lead"></p>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#searchForm').on('submit', function (e) {
+                e.preventDefault();
+                let query = $('#query').val();
+                $.ajax({
+                    url: '/search',
+                    type: 'GET',
+                    data: { q: query },
+                    success: function (data) {
+                        $('#resultText').text(data.result);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

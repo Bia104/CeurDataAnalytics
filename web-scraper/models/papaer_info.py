@@ -7,5 +7,14 @@ class PaperInfo :
         self.abstract = abstract
         self.related_papers = related_papers
 
+class RelatedPaperInfo:
+    def __init__(self, title: str, authors: list[str], text: str):
+        self.title = title
+        self.authors = authors
+        self.text = text
+    def __str__(self):
+        return f"Title: {self.title}, Authors: {', '.join(self.authors)}, Text: {self.text}"
+        
+
     
         

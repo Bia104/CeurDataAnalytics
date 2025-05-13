@@ -1,7 +1,8 @@
-from models.papaer_info import PaperInfo, RelatedPaperInfo
+from release.models.paper_info import PaperInfo, RelatedPaperInfo
 import base64
 import pdfplumber
 from pdfplumber.pdf import PDF
+
 from io import BytesIO
 def parse_file_path(file_path : str) -> PaperInfo:
     with open(file_path, "rb") as file:

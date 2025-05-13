@@ -2,13 +2,13 @@ import logging
 import os
 import requests
 from bs4 import BeautifulSoup
-from models.paper import Paper
-from models.volume import (Volume)
 
+from release.models.paper import Paper
+from release.models.volume import Volume
 
 class Scraper:
 
-    logging.basicConfig(filename='scraping.log', level=logging.INFO,
+    logging.basicConfig(filename='../../web-scraper/scraper/scraping.log', level=logging.INFO,
                         format='%(asctime)s - %(levelname)s - %(message)s')
 
     def __init__(self):

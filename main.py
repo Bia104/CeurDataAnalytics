@@ -1,20 +1,17 @@
 import logging
 import os
 import re
-import threading
 
 import requests
 from concurrent.futures import ThreadPoolExecutor
 
-from scraper.scraper import Scraper
-from db.database import Database
+from release.scraper.scraper import Scraper
+from release.scraper.database import Database
 from dotenv import load_dotenv
 
 load_dotenv()
 logging.basicConfig(filename='scraping.log', level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
-
-lock = threading.Lock()
 
 def main():
     scraper = Scraper()

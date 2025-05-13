@@ -1,6 +1,6 @@
 class PaperInfo : 
-    def __init__(self, paperId : str, title : str, authors : list[str], keywords: list[str], abstract : str, related_papers : list[str]):
-        self.paperId = paperId
+    def __init__(self, paper_id : str, title : str, authors : list[str], keywords: list[str], abstract : str, related_papers : list[str]):
+        self.paperId = paper_id
         self.title = title
         self.authors = authors
         self.keywords = keywords
@@ -14,7 +14,4 @@ class RelatedPaperInfo:
         self.text = text
     def __str__(self):
         return f"Title: {self.title}, Authors: {', '.join(self.authors)}, Text: {self.text}"
-        
-
-    
         

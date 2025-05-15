@@ -4,7 +4,7 @@ import logging
 from release.parser.parser import get_keywords, get_references
 import release.models.paper_info as models
 
-pdf_path = "parser/test/resources/paos2017_paper1.pdf"
+pdf_path = "../resources/paos2017_paper1.pdf"
 
 def test_get_keywords():
     
@@ -26,7 +26,8 @@ def test_get_references_correct_format():
     with pdfplumber.open(pdf_path) as pdf:
         references = get_references(pdf)
     assert isinstance(references, list), "The references must be a list"
-    
+    assert len(references) == 15, "The list of references must contain 15 elements"
+
     for i in range(len(references)):
         reference = references[i]
         assert isinstance(reference, models.RelatedPaperInfo), "The references must be of 'RelatedPaperInfo' type"
@@ -36,3 +37,26 @@ def test_get_references_correct_format():
 
         assert reference.text.startswith(f"{i + 1}.")
 
+def test_get_references_correct_authors():
+    with pdfplumber.open(pdf_path) as pdf:
+        references = get_references(pdf)
+    assert isinstance(references, list), "The references must be a list"
+    assert len(references) == 15, "The list of references must contain 15 elements"
+    reference = references[1]
+    assert isinstance(reference, models.RelatedPaperInfo), "The references must be of 'RelatedPaperInfo' type"
+    assert hasattr(reference, "title"), "The referenced must have a 'title' attribute"
+    assert hasattr(reference, "authors"), "The referenced must have a 'authors' attribute"
+    assert hasattr(reference, "text"), "The referenced must have a 'text' attribute"
+    assert len(reference.authors) == 3, "The referenced must have 3 authors"
+
+def test_get_reference_2_correct_title():
+    with pdfplumber.open(pdf_path) as pdf:
+        references = get_references(pdf)
+    assert isinstance(references, list), "The references must be a list"
+    assert len(references) == 15, "The list of references must contain 15 elements"
+    reference = references[1]
+    assert isinstance(reference, models.RelatedPaperInfo), "The references must be of 'RelatedPaperInfo' type"
+    assert hasattr(reference, "title"), "The referenced must have a 'title' attribute"
+    assert hasattr(reference, "authors"), "The referenced must have a 'authors' attribute"
+    assert hasattr(reference, "text"), "The referenced must have a 'text' attribute"
+    assert reference.title == "RDFization of Japanese Electronic Dictionaries and LOD", "The title of the reference 2 is incorrect"

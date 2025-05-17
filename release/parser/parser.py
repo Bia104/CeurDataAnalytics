@@ -1,26 +1,39 @@
+'''
+This module is used to parse a PDF file and extract keywords and references from it.
+is part of the parsing for a single paper. You should insert into PaperInfo: title, authors, and this module will extract the keywords and references.
+'''
 from release.models.paper_info import PaperInfo, RelatedPaperInfo
 import base64
 import pdfplumber
 from pdfplumber.pdf import PDF
 
 from io import BytesIO
-def parse_file_path(file_path : str) -> PaperInfo:
-    with open(file_path, "rb") as file:
-        return parse_file_base64(base64.b64encode(file.read()).decode())
 
-def parse_file_base64(base64_file : str) -> PaperInfo:
+def parse_file_path(file_path : str, info : PaperInfo) -> PaperInfo:
+    with open(file_path, "rb") as file:
+        return parse_file_base64(base64.b64encode(file.read()).decode(), info)
+
+def parse_file_base64(base64_file : str, info : PaperInfo) -> PaperInfo:
     bytes_file : bytes = base64.b64decode(base64_file)
     bytesIO_file : BytesIO = BytesIO(bytes_file)
-    return parse_pdf(pdfplumber.open(bytesIO_file))
+    return parse_pdf(pdfplumber.open(bytesIO_file), info)
 
-def parse_pdf(file : PDF) -> PaperInfo:
-    first_page = file.pages[0]
-    title = first_page.filter(lambda obj: obj["object_type"] == "char" and ("Bold" in obj["fontname"]))[0]
+def parse_pdf(file : PDF, info : PaperInfo) -> PaperInfo:
     keywords : list[str] = get_keywords(file)
+    references : list[RelatedPaperInfo] = get_references(file)
+    return PaperInfo(
+        paper_id = info.paperId,
+        title = info.title,
+        authors = info.authors,
+        keywords = keywords,
+        abstract = info.abstract,
+        related_papers = references
+    )
 
 
 
-def get_keywords(pdf: PDF) -> list[any]:
+
+def get_keywords(pdf: PDF) -> list[str]:
     keywords = []
     
     for page in pdf.pages:
@@ -42,7 +55,7 @@ def get_keywords(pdf: PDF) -> list[any]:
                 return keywords
     return keywords
 
-def _get_references_words(pdf: PDF) -> list[any]:
+def _get_references_words(pdf: PDF) -> list[str]:
     references = []
     for page in pdf.pages:
         words = page.extract_words(extra_attrs=["fontname", "size"])

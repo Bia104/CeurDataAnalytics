@@ -49,9 +49,10 @@ def get_keywords(pdf: PDF) -> list[str]:
                     j += 1
                 
                 if "," in text:
-                    keywords = text.strip("$-$").split(",")
+                    keywords = text.replace("$-$", " ").split(",")
                 else:
-                    keywords = text.strip().split("$-$")
+                    keywords = text.split("$-$")
+                keywords = [k.strip() for k in keywords if k.strip()]
                 return keywords
     return keywords
 
@@ -62,12 +63,23 @@ def _get_references_words(pdf: PDF) -> list[str]:
         for i in range(len(words)):
             reference = words[i]
             if _check_if_is_reference(reference):
+                actual_page = page
                 references = []
                 j = i + 1
                 first_word_size = words[j]["size"]
-                while j < len(words) and not _check_size_changed(words[j], first_word_size):
+                while(j < len(words)
+                      and (
+                          not _check_size_changed(words[j], first_word_size)
+                          or _check_if_is_superscript_or_subscript(words[j])
+                      )
+                ) :
                     references.append(words[j])
                     j += 1
+                    if j >= len(words) and pdf.pages.index(actual_page) + 1 < len(pdf.pages):
+                        actual_page = pdf.pages[pdf.pages.index(actual_page) + 1]
+                        words = actual_page.extract_words(extra_attrs=["fontname", "size"])
+                        j = 0
+
                 return references
     return []
 
@@ -100,10 +112,10 @@ def get_references(pdf: PDF) -> list[RelatedPaperInfo]:
 
         references = []
         current_reference = []
-        separator_pattern = r"\d+\."
+        separator_pattern = r"^(\d+\.)|\[\d+\]"
         for i in range(len(words)):
             word = words[i]
-            if re.match(separator_pattern, word["text"]) and (i > 0 or _check_new_line(word, words[i - 1])):
+            if re.match(separator_pattern, word["text"]) and (i > 0 and _check_new_line(word, words[i - 1])):
                 if current_reference:
                     references.append(current_reference)
                 current_reference = [word]
@@ -159,8 +171,11 @@ def get_references(pdf: PDF) -> list[RelatedPaperInfo]:
 
     return related_papers
 
-def _check_size_changed(word, first_word_size, epsilon = 0.1) -> bool:
+def _check_size_changed(word, first_word_size, epsilon = 1) -> bool:
     return abs(word["size"] - first_word_size) > epsilon
 
 def _check_new_line(word, previous_word) -> bool:
     return abs(word["top"] - previous_word["top"]) > 0.1 and abs(word["bottom"] - previous_word["bottom"]) > 0.1
+
+def _check_if_is_superscript_or_subscript(word) -> bool:
+    return word["upright"]

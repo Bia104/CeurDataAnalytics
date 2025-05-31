@@ -68,6 +68,7 @@ def test_parse_p1v3901():
     assert paper_info.keywords == ["Social Chatbots", "Privacy Policies", "Ethics", "Al Companions", "Data Protection"]
 
     assert len(paper_info.related_papers) == 40
+
     for i in range(len(paper_info.related_papers)):
         assert isinstance(paper_info.related_papers[i], models.RelatedPaperInfo), "The references must be of 'RelatedPaperInfo' type"
         assert hasattr(paper_info.related_papers[i], "title"), "The referenced must have a 'title' attribute"
@@ -75,4 +76,7 @@ def test_parse_p1v3901():
         assert hasattr(paper_info.related_papers[i], "text"), "The referenced must have a 'text' attribute"
         assert paper_info.related_papers[i].text[:len(str(i + 1)) + 2] == f"[{i + 1}]", f"The text of the reference is incorrect: {paper_info.related_papers[i].text[:10]} != [{i + 1}]."
 
-    
+    reference_1 = paper_info.related_papers[0]
+    assert  reference_1.authors == ["M.-H. Huang", "R. Rust", "V. Maksimovic"], "The authors of the reference 1 are incorrect"
+    assert reference_1.title == "The Feeling Economy: Managing in the Next Generation of Artificial Intelligence (Al), California Management Review 61(4) (2019) 43-65"
+

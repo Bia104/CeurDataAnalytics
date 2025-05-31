@@ -5,10 +5,12 @@ is part of the parsing for a single paper. You should insert into PaperInfo: tit
 from release.models.paper_info import PaperInfo, RelatedPaperInfo
 import base64
 import pdfplumber
+import enchant
 from pdfplumber.pdf import PDF
 
 from io import BytesIO
 
+eng_dic = enchant.Dict("en_US")
 def parse_file_path(file_path : str, info : PaperInfo) -> PaperInfo:
     with open(file_path, "rb") as file:
         return parse_file_base64(base64.b64encode(file.read()).decode(), info)
@@ -129,36 +131,41 @@ def get_references(pdf: PDF) -> list[RelatedPaperInfo]:
 
     def extract_authors_and_title(reference_text: str) -> tuple[list[str], str]:
 
-        title_separators = [":", ";", "."]
-        # Try to find the first separator in the reference text
-        for sep in title_separators:
-            if sep in reference_text:
-                parts = reference_text.split(sep, 1)
-                authors_part = parts[0]
-                break
-        else:
-            # Is not a recognizable reference
-            authors_part = reference_text
-            parts = [authors_part]
-        title_part = "".join(parts[1:]).strip() if len(parts) > 1 else ""
-
-        authors = []
-        for author in authors_part.split(","):
-            if "and" in author:
-                authors.extend([a.strip() for a in author.split("and")])
+        reference_text_words = reference_text.split()
+        count_eng_words = 0
+        start_title = 0
+        for i in range(len(reference_text_words)):
+            clean_word = re.sub(r"[.:,;]", "", reference_text_words[i].strip())
+            if len(clean_word) > 1 and eng_dic.check(clean_word):
+                count_eng_words += 1
             else:
-                authors.append(author.strip())
+                count_eng_words = 0
+            if count_eng_words > 3:
+                start_title = i - count_eng_words + 1
+                break
 
-        authors = [a for a in authors if a]
-        authors = [re.sub(r"(?<=[a-z])(?=[A-Z])", " ", a) for a in authors]
+        authors_words = reference_text_words[1:start_title]
+
+        # Finding if the authors contains the title
+        for i, word in enumerate(authors_words):
+            if ":" in word or ";" in word or ("." in word and not (re.match(r"[A-Z]\.", word))):
+                start_title = start_title - len(authors_words) + i + 1
+                authors_words = authors_words[:start_title]
+                break
+        if "and" in authors_words:
+            authors_words.remove("and")
+        authors_text = " ".join(authors_words)
+        authors_list = authors_text.split(",")
+        authors_list = [author.strip() for author in authors_list if author.strip()]
         # try to assume the correct separator for the title
+        title_part = " ".join(reference_text_words[start_title:])
         first_semi = title_part.find(";")
         first_dot = title_part.find(".")
         if first_semi != -1 and (first_dot == -1 or first_semi < first_dot):
             title_part = title_part[:first_semi]
         elif first_dot != -1:
             title_part = title_part[:first_dot]
-        return authors, title_part
+        return authors_list, title_part
     words = _get_references_words(pdf)
     references = split_words(words)
 

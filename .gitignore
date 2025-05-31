@@ -172,3 +172,11 @@ cython_debug/
 
 # System files
 .DS_Store
+/.idea/CeurDataAnalytics.iml
+/.vscode/launch.json
+/web-scraper/.vscode/launch.json
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/inspectionProfiles/profiles_settings.xml
+/.vscode/settings.json
+/web-scraper/.vscode/settings.json

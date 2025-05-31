@@ -140,13 +140,13 @@ def get_references(pdf: PDF) -> list[RelatedPaperInfo]:
                 count_eng_words += 1
             else:
                 count_eng_words = 0
-            if count_eng_words > 3:
+            if count_eng_words > 5:
                 start_title = i - count_eng_words + 1
                 break
 
         authors_words = reference_text_words[1:start_title]
 
-        # Finding if the authors contains the title
+        # Finding if the authors contain the title
         for i, word in enumerate(authors_words):
             if ":" in word or ";" in word or ("." in word and not (re.match(r"[A-Z]\.", word))):
                 start_title = start_title - len(authors_words) + i + 1

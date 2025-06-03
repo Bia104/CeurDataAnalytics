@@ -11,24 +11,24 @@ from pdfplumber.pdf import PDF
 from io import BytesIO
 
 eng_dic = enchant.Dict("en_US")
-def parse_file_path(file_path : str, info : PaperInfo) -> PaperInfo:
+def parse_file_path(file_path: str) -> PaperInfo:
     with open(file_path, "rb") as file:
-        return parse_file_base64(base64.b64encode(file.read()).decode(), info)
+        return parse_file_base64(base64.b64encode(file.read()).decode())
 
-def parse_file_base64(base64_file : str, info : PaperInfo) -> PaperInfo:
+def parse_file_bytes(file_bytes: bytes) -> PaperInfo:
+    bytesIO_file : BytesIO = BytesIO(file_bytes)
+    return parse_pdf(pdfplumber.open(bytesIO_file))
+
+def parse_file_base64(base64_file: str) -> PaperInfo:
     bytes_file : bytes = base64.b64decode(base64_file)
     bytesIO_file : BytesIO = BytesIO(bytes_file)
-    return parse_pdf(pdfplumber.open(bytesIO_file), info)
+    return parse_pdf(pdfplumber.open(bytesIO_file))
 
-def parse_pdf(file : PDF, info : PaperInfo) -> PaperInfo:
+def parse_pdf(file: PDF) -> PaperInfo:
     keywords : list[str] = get_keywords(file)
     references : list[RelatedPaperInfo] = get_references(file)
     return PaperInfo(
-        paper_id = info.paperId,
-        title = info.title,
-        authors = info.authors,
         keywords = keywords,
-        abstract = info.abstract,
         related_papers = references
     )
 

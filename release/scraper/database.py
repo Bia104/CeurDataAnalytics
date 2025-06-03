@@ -30,3 +30,11 @@ class Database:
 
     def get_papers(self, volume_id):
         return self.papers_collection.find({"volume_id": volume_id})
+
+    def test_connection(self):
+        try:
+            self.client.admin.command('ping')
+            return True
+        except Exception as e:
+            return False
+

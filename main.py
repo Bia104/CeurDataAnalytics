@@ -2,11 +2,14 @@ import logging
 import os
 import re
 
+import magic
 import requests
 from concurrent.futures import ThreadPoolExecutor
 
+from release.models.paper_info import PaperInfo
 from release.scraper.scraper import Scraper
 from release.scraper.database import Database
+import release.parser.parser as Parser
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -16,10 +19,15 @@ logging.basicConfig(filename='scraping.log', level=logging.INFO,
 def main():
     scraper = Scraper()
     database = Database()
-
+    if not database.test_connection():
+        logging.error("Database connection failed. Exiting.")
+        return
+    else:
+        logging.info("Database connection successful")
     num = get_valid_num()
     download_dir = None if num == 0 else get_valid_dir()
-
+    print(download_dir)
+    print("Starting")
     all_volumes = scraper.get_all_volumes()
 
     with ThreadPoolExecutor(max_workers=20) as executor:  # Adjust max_workers as needed
@@ -49,7 +57,8 @@ def scrape_volume(volume_id, scraper, database,):
             volume_papers = scraper.get_volume_papers(volume_id)
             for paper in volume_papers:
                 paper.volume_id = volume_object_id
-                database.save_paper(paper.__dict__)
+                extend_paper_info(paper)
+                database.save_paper(paper.to_dict())
 
 def download_paper(volume_id, database, download_dir):
     volume_papers = database.get_papers(database.get_volume_id(volume_id))
@@ -90,6 +99,28 @@ def get_valid_dir():
             return folder_path
         except OSError as e:
             print(f"Invalid directory: {e}. Please try again.")
+
+def extend_paper_info(paper) -> None:
+    request = requests.get(paper.url)
+    if request.status_code != 200:
+        logging.error(f"Failed to fetch paper {paper['title']} from {paper['url']}")
+        return None
+
+    if not is_pdf(request.content):
+        logging.error(f"The file downloaded from {paper.url} is not a valid PDF., {request.content}")
+        return None
+
+    try:
+        info = Parser.parse_file_bytes(request.content.__bytes__())
+        paper.add_paper_info(info)
+    except Exception as e:
+        logging.error(f"Error parsing PDF from {paper.url}: {e}")
+    return None
+
+def is_pdf(content):
+    mime = magic.Magic(mime=True)
+    file_type = mime.from_buffer(content)
+    return file_type == "application/pdf"
 
 if __name__ == "__main__":
     main()

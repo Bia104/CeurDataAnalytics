@@ -7,12 +7,14 @@ class RelatedPaperInfo:
         return f"Title: {self.title}, Authors: {', '.join(self.authors)}, Text: {self.text}"
 
 
-class PaperInfo :
-    def __init__(self, paper_id : str, title : str, authors : list[str], keywords: list[str], abstract : str, related_papers : list[RelatedPaperInfo]):
-        self.paperId = paper_id
-        self.title = title
-        self.authors = authors
+class PaperInfo:
+    def __init__(self, keywords: list[str], related_papers : list[RelatedPaperInfo]):
         self.keywords = keywords
-        self.abstract = abstract
         self.related_papers = related_papers
+
+    def to_dict(self):
+        return {
+            'keywords': self.keywords,
+            'related_papers': [paper.__dict__ for paper in self.related_papers]
+        }
         

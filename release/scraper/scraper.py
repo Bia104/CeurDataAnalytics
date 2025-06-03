@@ -8,7 +8,7 @@ from release.models.volume import Volume
 
 class Scraper:
 
-    logging.basicConfig(filename='../../web-scraper/scraper/scraping.log', level=logging.INFO,
+    logging.basicConfig(filename='release/scraper/scraping.log', level=logging.INFO,
                         format='%(asctime)s - %(levelname)s - %(message)s')
 
     def __init__(self):

@@ -2,6 +2,8 @@
 This module is used to parse a PDF file and extract keywords and references from it.
 is part of the parsing for a single paper. You should insert into PaperInfo: title, authors, and this module will extract the keywords and references.
 '''
+import re
+
 from release.models.paper_info import PaperInfo, RelatedPaperInfo
 import base64
 import pdfplumber
@@ -11,6 +13,8 @@ from pdfplumber.pdf import PDF
 from io import BytesIO
 
 eng_dic = enchant.Dict("en_US")
+eng_dic.add("Convolutional")
+eng_dic.add("convolutional")
 def parse_file_path(file_path: str) -> PaperInfo:
     with open(file_path, "rb") as file:
         return parse_file_base64(base64.b64encode(file.read()).decode())
@@ -45,6 +49,9 @@ def get_keywords(pdf: PDF) -> list[str]:
             if _check_if_is_keyword(keyword):
                 j = i + 1
                 first_word_size = words[j]["size"]
+                while j < len(words) and len(re.sub(r"[^A-Za-z]", "", words[j]["text"])) == 0:
+                    j = j + 1
+                    first_word_size = words[j]["size"]
                 text = ""
                 while j < len(words) and words[j]["size"] == first_word_size:
                     text += words[j]["text"] + "$-$"
@@ -101,6 +108,8 @@ def _check_if_is_reference(word) -> bool:
     return ((
             word["text"].lower() == "references" 
             or word["text"].lower() == "references:"
+            or word["text"].lower() == "reference"
+            or word["text"].lower() == "reference:"
         )
         and _check_if_is_bold(word["fontname"])
     )
@@ -134,15 +143,23 @@ def get_references(pdf: PDF) -> list[RelatedPaperInfo]:
         reference_text_words = reference_text.split()
         count_eng_words = 0
         start_title = 0
-        for i in range(len(reference_text_words)):
-            clean_word = re.sub(r"[.:,;]", "", reference_text_words[i].strip())
-            if len(clean_word) > 1 and eng_dic.check(clean_word):
-                count_eng_words += 1
-            else:
-                count_eng_words = 0
-            if count_eng_words > 5:
-                start_title = i - count_eng_words + 1
+        threshold = 5
+        while threshold >= 2:
+            count_eng_words = 0
+            for i in range(len(reference_text_words)):
+                word = reference_text_words[i].strip()
+                clean_word = re.sub(r"[^a-zA-Z]", "", word)
+                if len(clean_word) > 0 and (not (clean_word.isupper() and word.replace(',', "")[-1] == '.' or len(
+                        [dot for dot in word if word == '.']) > 1)) and eng_dic.check(clean_word):
+                    count_eng_words += 1
+                else:
+                    count_eng_words = 0
+                if count_eng_words >= threshold:
+                    start_title = i - count_eng_words + 1
+                    break
+            if count_eng_words >= threshold:
                 break
+            threshold -= 1
 
         authors_words = reference_text_words[1:start_title]
 
@@ -154,6 +171,8 @@ def get_references(pdf: PDF) -> list[RelatedPaperInfo]:
                 break
         if "and" in authors_words:
             authors_words.remove("and")
+        if "&" in authors_words:
+            authors_words.remove("&")
         authors_text = " ".join(authors_words)
         authors_list = authors_text.split(",")
         authors_list = [author.strip() for author in authors_list if author.strip()]

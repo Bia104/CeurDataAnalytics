@@ -24,9 +24,9 @@ def main():
         return
     else:
         logging.info("Database connection successful")
-    num = get_valid_num()
-    download_dir = None if num == 0 else get_valid_dir()
-    print(download_dir)
+    # num = get_valid_num()
+    # download_dir = None if num == 0 else get_valid_dir()
+    # print(download_dir)
     print("Starting")
     all_volumes = scraper.get_all_volumes()
 
@@ -37,12 +37,12 @@ def main():
         for future in futures:
             future.result()
 
-    for volume_id in all_volumes:
-        if num is None or num > 0:
-            download_paper(volume_id, database, download_dir)
-            logging.info(f"Volume {volume_id} downloaded")
-            if num is not None: num -= 1
-        else: break
+    # for volume_id in all_volumes:
+    #     if num is None or num > 0:
+    #         download_paper(volume_id, database, download_dir)
+    #         logging.info(f"Volume {volume_id} downloaded")
+    #         if num is not None: num -= 1
+    #     else: break
 
 def scrape_volume(volume_id, scraper, database,):
     if database.volume_exists(volume_id):

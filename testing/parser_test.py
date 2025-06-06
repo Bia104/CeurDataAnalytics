@@ -6,6 +6,8 @@ import release.models.paper_info as models
 
 pdf_path = "../resources/paos2017_paper1.pdf"
 pdf_p1v3901_path = "../resources/p1v3901.pdf"
+pdf_p1v3970_path = "../resources/p1v3970.pdf"
+pdf_p29v3896_path = "../resources/p29v3896.pdf"
 def test_get_keywords():
     
     with pdfplumber.open(pdf_path) as pdf:
@@ -62,7 +64,7 @@ def test_get_reference_2_correct_title():
     assert reference.title == "RDFization of Japanese Electronic Dictionaries and LOD", "The title of the reference 2 is incorrect"
 
 def test_parse_p1v3901():
-    paper_info = parser.parse_file_path(pdf_p1v3901_path, models.PaperInfo(paper_id="id", title="test", abstract="abstract", authors=[], keywords=[], related_papers=[]))
+    paper_info = parser.parse_file_path(pdf_p1v3901_path)
 
     assert len(paper_info.keywords) == 5
     assert paper_info.keywords == ["Social Chatbots", "Privacy Policies", "Ethics", "Al Companions", "Data Protection"]
@@ -80,3 +82,16 @@ def test_parse_p1v3901():
     assert  reference_1.authors == ["M.-H. Huang", "R. Rust", "V. Maksimovic"], "The authors of the reference 1 are incorrect"
     assert reference_1.title == "The Feeling Economy: Managing in the Next Generation of Artificial Intelligence (Al), California Management Review 61(4) (2019) 43-65"
 
+def test_parse_p1v3970():
+    parser_info = parser.parse_file_path(pdf_p1v3970_path)
+
+    assert isinstance(parser_info, models.PaperInfo), "The parser info must be of 'PaperInfo' type"
+    assert len(parser_info.keywords) == 6, "The number of keywords must be 5"
+    assert len(parser_info.related_papers) != 0, "The number of related papers must not be 0"
+    assert len(parser_info.related_papers) == 30 , "The number of related papers must be 29"
+
+def test_parse_p29v3896():
+    paper_info = parser.parse_file_path(pdf_p29v3896_path)
+
+    assert isinstance(paper_info, models.PaperInfo), "The parser info must be of 'PaperInfo' type"
+    assert len(paper_info.keywords) == 11, "The number of keywords must be 7"

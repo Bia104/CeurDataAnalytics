@@ -148,7 +148,7 @@ def get_references(pdf: PDF) -> list[RelatedPaperInfo]:
             count_eng_words = 0
             for i in range(len(reference_text_words)):
                 word = reference_text_words[i].strip()
-                clean_word = re.sub(r"[^a-zA-Z]", "", word)
+                clean_word = re.sub(r"[^a-zA-Z\-]", "", word)
                 if len(clean_word) > 0 and (not (clean_word.isupper() and word.replace(',', "")[-1] == '.' or len(
                         [dot for dot in word if word == '.']) > 1)) and eng_dic.check(clean_word):
                     count_eng_words += 1
@@ -163,7 +163,6 @@ def get_references(pdf: PDF) -> list[RelatedPaperInfo]:
 
         authors_words = reference_text_words[1:start_title]
 
-        # Finding if the authors contain the title
         for i, word in enumerate(authors_words):
             if ":" in word or ";" in word or ("." in word and not (re.match(r"[A-Z]\.", word))):
                 start_title = start_title - len(authors_words) + i + 1

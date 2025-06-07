@@ -15,6 +15,8 @@ from io import BytesIO
 eng_dic = enchant.Dict("en_US")
 eng_dic.add("Convolutional")
 eng_dic.add("convolutional")
+eng_dic.add("Digitalization")
+eng_dic.add("digitalization")
 def parse_file_path(file_path: str) -> PaperInfo:
     with open(file_path, "rb") as file:
         return parse_file_base64(base64.b64encode(file.read()).decode())

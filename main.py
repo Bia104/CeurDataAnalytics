@@ -59,6 +59,7 @@ def scrape_volume(volume_id, scraper, database,):
                 paper.volume_id = volume_object_id
                 extend_paper_info(paper)
                 database.save_paper(paper.to_dict())
+            print(f"Volume {volume_id} saved successfully")
 
 def download_paper(volume_id, database, download_dir):
     volume_papers = database.get_papers(database.get_volume_id(volume_id))
@@ -103,7 +104,7 @@ def get_valid_dir():
 def extend_paper_info(paper) -> None:
     request = requests.get(paper.url)
     if request.status_code != 200:
-        logging.error(f"Failed to fetch paper {paper['title']} from {paper['url']}")
+        logging.error(f"Failed to fetch paper {paper.title} from {paper.url}")
         return None
 
     if not is_pdf(request.content):

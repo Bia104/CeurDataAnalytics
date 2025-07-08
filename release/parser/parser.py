@@ -1,7 +1,8 @@
-'''
+"""
 This module is used to parse a PDF file and extract keywords and references from it.
-is part of the parsing for a single paper. You should insert into PaperInfo: title, authors, and this module will extract the keywords and references.
-'''
+This is part of the parsing for a single paper. You should insert into PaperInfo: title, authors, and this module will extract the keywords and references.
+"""
+
 import re
 
 from release.models.paper_info import PaperInfo, RelatedPaperInfo

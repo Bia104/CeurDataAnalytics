@@ -88,10 +88,17 @@ def test_parse_p1v3970():
     assert isinstance(parser_info, models.PaperInfo), "The parser info must be of 'PaperInfo' type"
     assert len(parser_info.keywords) == 6, "The number of keywords must be 5"
     assert len(parser_info.related_papers) != 0, "The number of related papers must not be 0"
-    assert len(parser_info.related_papers) == 30 , "The number of related papers must be 29"
+    assert len(parser_info.related_papers) == 29 , "The number of related papers must be 29"
 
 def test_parse_p29v3896():
     paper_info = parser.parse_file_path(pdf_p29v3896_path)
 
     assert isinstance(paper_info, models.PaperInfo), "The parser info must be of 'PaperInfo' type"
     assert len(paper_info.keywords) == 11, "The number of keywords must be 7"
+
+def test_parse_p12v3941():
+    pdf_path = "../resources/p12v3941.pdf"
+    paper_info = parser.parse_file_path(pdf_path)
+
+    assert isinstance(paper_info, models.PaperInfo), "The parser info must be of 'PaperInfo' type"
+    assert len(paper_info.related_papers) == 40, "The number of related papers must be 20"

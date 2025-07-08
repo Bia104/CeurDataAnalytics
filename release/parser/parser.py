@@ -82,7 +82,10 @@ def _get_references_words(pdf: PDF) -> list[str]:
                 while(j < len(words)
                       and (
                           not _check_size_changed(words[j], first_word_size)
-                          or _check_if_is_superscript_or_subscript(words[j])
+                          or (
+                              _check_if_is_superscript_or_subscript(words[j])
+                              and _check_size_changed(words[j], reference["size"])
+                          )
                       )
                 ) :
                     references.append(words[j])
@@ -129,7 +132,16 @@ def get_references(pdf: PDF) -> list[RelatedPaperInfo]:
         separator_pattern = r"^(\d+\.)|\[\d+\]"
         for i in range(len(words)):
             word = words[i]
-            if re.match(separator_pattern, word["text"]) and (i > 0 and _check_new_line(word, words[i - 1])):
+            match = re.match(separator_pattern, word["text"])
+            num = 0
+            if match:
+                num = word["text"].replace(".", "").replace("[", "").replace("]", "")
+                if num.isdigit():
+                    num = int(num)
+                else:
+                    num = 0 # the next if will fail, because the numb
+
+            if match and num == len(references) + 2 and (i > 0 and _check_new_line(word, words[i - 1])):
                 if current_reference:
                     references.append(current_reference)
                 current_reference = [word]

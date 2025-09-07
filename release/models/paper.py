@@ -18,5 +18,6 @@ class Paper:
             'pages': self.pages,
             'author': self.author,
             'volume_id': self.volume_id,
-            'paper_info': self.paper_info.to_dict() if self.paper_info else None
+            'paper_info': self.paper_info.to_dict() if self.paper_info else None,
+            'abstract': self.paper_info.abstract if self.paper_info else None
         }

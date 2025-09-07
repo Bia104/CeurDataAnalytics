@@ -103,7 +103,7 @@ def get_valid_dir():
 def extend_paper_info(paper) -> None:
     request = requests.get(paper.url)
     if request.status_code != 200:
-        logging.error(f"Failed to fetch paper {paper['title']} from {paper['url']}")
+        logging.error(f"Failed to fetch paper {paper.title} from {paper.url}, status code: {request.status_code}")
         return None
 
     if not is_pdf(request.content):

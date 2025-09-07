@@ -81,7 +81,7 @@ def test_parse_p1v3901():
     reference_1 = paper_info.related_papers[0]
     assert  reference_1.authors == ["M.-H. Huang", "R. Rust", "V. Maksimovic"], "The authors of the reference 1 are incorrect"
     assert reference_1.title == "The Feeling Economy: Managing in the Next Generation of Artificial Intelligence (Al), California Management Review 61(4) (2019) 43-65"
-
+    assert "Currently" in  paper_info.abstract, "The abstract of the paper must contain the word 'Currently'"
 def test_parse_p1v3970():
     parser_info = parser.parse_file_path(pdf_p1v3970_path)
 
@@ -89,7 +89,7 @@ def test_parse_p1v3970():
     assert len(parser_info.keywords) == 6, "The number of keywords must be 5"
     assert len(parser_info.related_papers) != 0, "The number of related papers must not be 0"
     assert len(parser_info.related_papers) == 29 , "The number of related papers must be 29"
-
+    assert "The rapid increase of" in parser_info.abstract, "The abstract of the paper must contain the phrase 'The rapid increase of'"
 def test_parse_p29v3896():
     paper_info = parser.parse_file_path(pdf_p29v3896_path)
 

@@ -33,9 +33,11 @@ def parse_file_base64(base64_file: str) -> PaperInfo:
 def parse_pdf(file: PDF) -> PaperInfo:
     keywords : list[str] = get_keywords(file)
     references : list[RelatedPaperInfo] = get_references(file)
+    abstract = get_abstract(file)
     return PaperInfo(
         keywords = keywords,
-        related_papers = references
+        related_papers = references,
+        abstract = abstract
     )
 
 
@@ -210,6 +212,22 @@ def get_references(pdf: PDF) -> list[RelatedPaperInfo]:
 
     return related_papers
 
+def get_abstract(pdf: PDF) -> str:
+    abstract = str()
+    for page in pdf.pages:
+        words = page.extract_words(extra_attrs=["fontname", "size"])
+        for i in range(len(words)):
+            word = words[i]
+            if _check_if_is_abstract(word):
+                j = i + 1
+                first_word_size = words[j]["size"]
+                while j < len(words) and not _check_size_changed(words[j], first_word_size):
+                    abstract += words[j]["text"] + " "
+                    j += 1
+                return abstract.strip()
+
+    return abstract.strip()
+
 def _check_size_changed(word, first_word_size, epsilon = 1) -> bool:
     return abs(word["size"] - first_word_size) > epsilon
 
@@ -218,3 +236,11 @@ def _check_new_line(word, previous_word) -> bool:
 
 def _check_if_is_superscript_or_subscript(word) -> bool:
     return word["upright"]
+
+def _check_if_is_abstract(word) -> bool:
+    return ((
+            word["text"].lower() == "abstract"
+            or word["text"].lower() == "abstract:"
+        )
+        and _check_if_is_bold(word["fontname"])
+    )

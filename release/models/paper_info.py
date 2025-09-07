@@ -8,13 +8,15 @@ class RelatedPaperInfo:
 
 
 class PaperInfo:
-    def __init__(self, keywords: list[str], related_papers : list[RelatedPaperInfo]):
+    def __init__(self, keywords: list[str], related_papers : list[RelatedPaperInfo], abstract: str):
         self.keywords = keywords
         self.related_papers = related_papers
+        self.abstract = abstract
 
     def to_dict(self):
         return {
             'keywords': self.keywords,
-            'related_papers': [paper.__dict__ for paper in self.related_papers]
+            'related_papers': [paper.__dict__ for paper in self.related_papers],
+            'abstract': self.abstract
         }
         

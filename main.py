@@ -24,9 +24,6 @@ def main():
         return
     else:
         logging.info("Database connection successful")
-    # num = get_valid_num()
-    # download_dir = None if num == 0 else get_valid_dir()
-    # print(download_dir)
     print("Starting")
     all_volumes = scraper.get_all_volumes()
 
@@ -73,33 +70,6 @@ def download_paper(volume_id, database, download_dir):
                 file.write(response.content)
         except (ValueError, OSError) as e:
             logging.error(f"Error downloading {paper['url']}: {e}")
-
-
-def get_valid_num():
-    while True:
-        user_input = input("Enter the number of volumes to download (or leave blank to get all of them): ").strip()
-        try:
-            if user_input != "":
-                return int(user_input)
-            else:
-                return None
-        except ValueError:
-            print("Invalid input! Please enter a valid number or a blank.")
-
-def get_valid_dir():
-    while True:
-        folder_path = input("Enter a directory to save files (or press Enter for default): ").strip()
-
-        if not folder_path:
-            folder_path = os.path.join(os.getcwd(), "Downloads")  # Default to "Downloads" in current dir
-
-        folder_path = os.path.expanduser(folder_path)
-
-        try:
-            os.makedirs(folder_path, exist_ok=True)
-            return folder_path
-        except OSError as e:
-            print(f"Invalid directory: {e}. Please try again.")
 
 def extend_paper_info(paper) -> None:
     request = requests.get(paper.url)

@@ -47,16 +47,20 @@ def scrape_volume(volume_id, scraper, database,):
     else:
         # Get and save volume to database
         volume_metadata = scraper.get_volume_metadata(volume_id)
-        if volume_metadata is not None:
-            volume_object_id = database.save_volume(volume_metadata.__dict__)
+        try:
+            if volume_metadata is not None:
+                volume_object_id = database.save_volume(volume_metadata.__dict__)
 
-            # Get and save papers to database
-            volume_papers = scraper.get_volume_papers(volume_id)
-            for paper in volume_papers:
-                paper.volume_id = volume_object_id
-                extend_paper_info(paper)
-                database.save_paper(paper.to_dict())
-            print(f"Volume {volume_id} saved successfully")
+                # Get and save papers to database
+                volume_papers = scraper.get_volume_papers(volume_id)
+                for paper in volume_papers:
+                    paper.volume_id = volume_object_id
+                    extend_paper_info(paper)
+                    database.save_paper(paper.to_dict())
+                print(f"Volume {volume_id} saved successfully")
+        except Exception as e:
+            print(f"Volume {volume_id} not saved. Error: {e}")
+
 
 def download_paper(volume_id, database, download_dir):
     volume_papers = database.get_papers(database.get_volume_id(volume_id))

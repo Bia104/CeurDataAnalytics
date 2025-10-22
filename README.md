@@ -47,6 +47,8 @@ DB_NAME = "ceur_ws"
 
 Create the MongoDB database with the name `ceur_ws` (or the name you specified in the `.env` file).
 
+Change the databases' names and connection info in the Jupyter notebooks to match your setup if necessary.
+
 ## Running the Script
 
 To run the script, execute the following command:
@@ -80,3 +82,17 @@ The other unique additions are the following:
 ```cypher
 MATCH (a:Author)-[:WROTE]->(p:Paper)-[:IN_VOLUME]->(v:Volume)
 RETURN a.name, p.title, v.title;
+```
+
+## Other Materials
+
+Additional materials and documentation related to this project can be found in the `utils` directory.
+
+- The `Presentation.pdf` contains the slides used for the final presentation of the project where you'll find the architecture, data structure, and results.
+- The `query_collection.json` file contains a collection of Cypher queries that can be imported and executed on the Memgraph database to retrieve various insights from the data.
+
+## Contact
+For any questions feel free to reach out:
+
+- Federico Di Petta: federico.dipetta@studenti.unicam.it
+- Bianca Maria Cerino: biancamaria.cerino@studenti.unicam.it
